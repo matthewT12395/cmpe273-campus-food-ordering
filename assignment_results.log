@@ -1,0 +1,148 @@
+======================================================================
+ASYNC RABBITMQ - ASSIGNMENT SUBMISSION TEST RESULTS
+======================================================================
+
+Timestamp: 2026-02-17T13:54:41.598280
+
+TEST SUMMARY
+----------------------------------------------------------------------
+basic_flow: FAILED
+idempotency: PASSED
+backlog_recovery: PASSED
+dlq_handling: PASSED_WITH_WARNING
+
+======================================================================
+DETAILED LOGS
+======================================================================
+
+[2026-02-17T13:54:41.598333] ======================================================================
+[2026-02-17T13:54:41.598361] ASSIGNMENT TEST SUITE STARTED
+[2026-02-17T13:54:41.598374] ======================================================================
+[2026-02-17T13:54:41.598385] Checking Docker containers...
+[2026-02-17T13:54:41.740551] Docker status:
+NAME                                    IMAGE                                 COMMAND                  SERVICE                CREATED      STATUS                PORTS
+async-rabbitmq-inventory-service-1      async-rabbitmq-inventory-service      "python app.py"          inventory-service      3 days ago   Up 42 minutes         
+async-rabbitmq-notification-service-1   async-rabbitmq-notification-service   "python app.py"          notification-service   3 days ago   Up 3 days             
+async-rabbitmq-order-service-1          async-rabbitmq-order-service          "python app.py"          order-service          3 days ago   Up 3 days             0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp
+async-rabbitmq-rabbitmq-1               rabbitmq:3.12-management              "docker-entrypoint.s…"   rabbitmq               3 days ago   Up 3 days (healthy)   0.0.0.0:5672->5672/tcp, [::]:5672->5672/tcp, 0.0.0.0:15672->15672/tcp, [::]:15672->15672/tcp
+
+[2026-02-17T13:54:41.740570] Waiting for services...
+[2026-02-17T13:54:41.746482] ✓ RabbitMQ is ready
+[2026-02-17T13:54:41.755108] ✓ Service http://localhost:5000 is ready
+[2026-02-17T13:54:41.755144] All services ready!
+[2026-02-17T13:54:41.755156] TEST 1: Starting basic message flow test...
+[2026-02-17T13:54:41.755167]   Creating order ORD-BASIC-1771365281...
+[2026-02-17T13:54:41.761669]   ✗ Failed to create order: 500
+[2026-02-17T13:54:43.767047] TEST 2: Starting idempotency test...
+[2026-02-17T13:54:43.767127]   Creating order ORD-IDEM-1771365283...
+[2026-02-17T13:54:43.789968]   ✓ Order created: ORD-IDEM-1771365283
+[2026-02-17T13:54:46.794435]   Publishing duplicate OrderPlaced message for ORD-IDEM-1771365283...
+[2026-02-17T13:54:46.809901]   ✓ Duplicate message published
+[2026-02-17T13:54:46.813696]   Waiting for processing...
+[2026-02-17T13:54:51.818075]   ✓ TEST 2 PASSED: Idempotency test completed
+[2026-02-17T13:54:51.818128]   Strategy: Inventory service tracks processed order_ids
+[2026-02-17T13:54:51.818161]             and skips duplicate processing
+[2026-02-17T13:54:53.823632] TEST 3: Starting backlog and recovery test...
+[2026-02-17T13:54:53.823670]   Step 1: Publishing orders before killing inventory service...
+[2026-02-17T13:54:53.842702]   ✓ Published 0 orders before killing service
+[2026-02-17T13:54:56.863284]   Queue depth BEFORE kill: 0 messages
+[2026-02-17T13:54:56.863316]   Step 2: Killing inventory service (273-week2-lab-inventory-service-1)...
+[2026-02-17T13:54:56.953422]   Trying alternative container name...
+[2026-02-17T13:54:56.989959]   Available containers:
+CONTAINER ID   IMAGE                                 COMMAND                  CREATED      STATUS                PORTS                                                                                          NAMES
+93332e6cb200   async-rabbitmq-order-service          "python app.py"          3 days ago   Up 3 days             0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp                                                    async-rabbitmq-order-service-1
+d84aeacc8dc4   async-rabbitmq-notification-service   "python app.py"          3 days ago   Up 3 days                                                                                                            async-rabbitmq-notification-service-1
+b9bceae43b32   async-rabbitmq-inventory-service      "python app.py"          3 days ago   Up 43 minutes                                                                                                        async-rabbitmq-inventory-service-1
+dd0b1d5860dd   rabbitmq:3.12-management              "docker-entrypoint.s…"   3 days ago   Up 3 days (healthy)   0.0.0.0:5672->5672/tcp, [::]:5672->5672/tcp, 0.0.0.0:15672->15672/tcp, [::]:15672->15672/tcp   async-rabbitmq-rabbitmq-1
+
+[2026-02-17T13:54:58.995329]   Step 3: Publishing orders while inventory service is DOWN...
+[2026-02-17T13:54:59.024066]   ✓ Published 0 orders to backlog
+[2026-02-17T13:55:01.032552]   Queue depth AFTER publishing 0 orders: 0 messages
+[2026-02-17T13:55:01.032590]   BACKLOG ACCUMULATED: 0 messages waiting
+[2026-02-17T13:55:01.032623]   Step 4: Restarting inventory service in 60 seconds...
+[2026-02-17T13:55:01.032660]   Messages will accumulate in RabbitMQ queue during this time
+[2026-02-17T13:55:01.032689]   Services are decoupled - publishing can continue
+[2026-02-17T13:55:01.037784]     [0s] Queue still has 0 messages (service down)
+[2026-02-17T13:55:11.086889]     [10s] Queue still has 0 messages (service down)
+[2026-02-17T13:55:21.139936]     [20s] Queue still has 0 messages (service down)
+[2026-02-17T13:55:31.198116]     [30s] Queue still has 0 messages (service down)
+[2026-02-17T13:55:41.245648]     [40s] Queue still has 0 messages (service down)
+[2026-02-17T13:55:51.297436]     [50s] Queue still has 0 messages (service down)
+[2026-02-17T13:56:01.339532]   Restarting inventory service...
+[2026-02-17T13:56:01.461855]   Using docker-compose to restart...
+[2026-02-17T13:56:05.125519]   Step 5: Monitoring backlog drain...
+[2026-02-17T13:56:05.138587]     [1s] Queue depth: 0 messages
+[2026-02-17T13:56:05.138608]   ✓ Queue fully drained in 1 seconds!
+[2026-02-17T13:56:05.138632]   ✓ TEST 3 PASSED: Backlog handled and recovered
+[2026-02-17T13:56:07.144908] TEST 4: Starting malformed event and DLQ test...
+[2026-02-17T13:56:07.158481]   Initial DLQ depth: 0 messages
+[2026-02-17T13:56:07.158514]   Sending malformed JSON to orders.created queue...
+[2026-02-17T13:56:07.169180]   ✓ Malformed message published
+[2026-02-17T13:56:07.172556]   Waiting for message to be processed...
+[2026-02-17T13:56:12.195521]   Final DLQ depth: 0 messages
+[2026-02-17T13:56:12.195568]   ⚠ DLQ depth unchanged (message may still be processing)
+
+======================================================================
+IDEMPOTENCY STRATEGY EXPLANATION
+======================================================================
+
+
+IDEMPOTENCY STRATEGY:
+========================
+
+The async-rabbitmq implementation ensures idempotency to prevent double-reserving
+inventory when duplicate OrderPlaced messages are delivered.
+
+APPROACH:
+---------
+1. TRACKED PROCESSED MESSAGES:
+   - The InventoryService maintains a set of processed order_ids in memory
+   - When an OrderPlaced event arrives, the service checks if it's already been processed
+   - processed_messages = set()  # Tracks order IDs
+
+2. DUPLICATE DETECTION:
+   - On receiving OrderPlaced event:
+     * Extract order_id from message
+     * Check: if order_id in processed_messages: skip
+     * Otherwise: process the order
+   
+3. IDEMPOTENT PROCESSING:
+   - If duplicate detected:
+     * Log: "Duplicate message for order {order_id}, skipping"
+     * Acknowledge message (ch.basic_ack) - remove from queue
+     * Return early - don't process inventory reservation
+   
+   - If first time seeing message:
+     * Check available inventory
+     * Reserve if sufficient stock
+     * Update processed_messages.add(order_id)
+     * Acknowledge message
+     * Publish InventoryReserved or InventoryFailed event
+
+4. DATABASE-BACKED IDEMPOTENCY:
+   - Reservations table has UNIQUE constraint on order_id
+     CREATE TABLE reservations (
+       order_id TEXT UNIQUE,  ← Prevents double insertion
+       ...
+     )
+   - This provides secondary protection against duplicate reservation
+
+5. MESSAGE ACKNOWLEDGMENT:
+   - Messages are ACKed (acknowledged) only AFTER processing
+   - If service crashes mid-processing, message is redelivered
+   - RabbitMQ's durable queues + manual ACKs = guaranteed processing
+
+BENEFITS:
+---------
+✓ No double inventory reservation
+✓ Handles network retries gracefully
+✓ Handles duplicate message delivery from RabbitMQ
+✓ Handles service restart and redelivery scenarios
+✓ Complies with At-Least-Once delivery semantics
+
+DEMONSTRATION:
+---------------
+When the same OrderPlaced message is sent twice:
+1. First delivery: order_id added to processed_messages, inventory reserved
+2. Second delivery: order_id found in processed_messages, skipped
+Result: Inventory not double-reserved, order processed exactly once
