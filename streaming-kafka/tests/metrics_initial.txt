@@ -1,0 +1,11 @@
+ANALYTICS METRICS REPORT
+==================================================
+Total Orders: 1000
+Failed Orders: 49
+Failure Rate: 4.9%
+Average Orders per Minute: 1000.0
+Current Orders per Minute: 0
+
+Orders by Minute:
+  2026-02-17 14:33:00: 1000 orders
+==================================================
