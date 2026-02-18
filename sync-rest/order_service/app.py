@@ -5,8 +5,8 @@ import time
 
 app = Flask(__name__)
 
-INVENTORY_URL = os.environ.get("INVENTORY_URL", "http://inventory:5001")
-NOTIFICATION_URL = os.environ.get("NOTIFICATION_URL", "http://notification:5002")
+INVENTORY_URL = os.environ.get("INVENTORY_URL", "http://localhost:5001")
+NOTIFICATION_URL = os.environ.get("NOTIFICATION_URL", "http://localhost:5002")
 REQUEST_TIMEOUT = float(os.environ.get("REQUEST_TIMEOUT", "5"))
 RETRY_COUNT = int(os.environ.get("RETRY_COUNT", "2"))
 RETRY_BACKOFF = float(os.environ.get("RETRY_BACKOFF", "0.5"))
@@ -50,6 +50,16 @@ def order():
         return jsonify({"order_status": "placed", "notification_status": "failed", "details": str(e)}), 200
 
     return jsonify({"order_status": "placed", "notification_status": nresp.status_code}), 200
+
+
+@app.route("/", methods=["GET"])
+def index():
+    return jsonify({"service": "order", "status": "ok"}), 200
+
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "healthy"}), 200
 
 
 if __name__ == "__main__":

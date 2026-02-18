@@ -12,3 +12,13 @@ def send():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5002)
+
+
+@app.route("/", methods=["GET"])
+def index():
+    return jsonify({"service": "notification", "status": "ok"}), 200
+
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "healthy"}), 200
